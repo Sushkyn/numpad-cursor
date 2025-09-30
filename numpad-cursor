@@ -1,0 +1,122 @@
+#!/bin/bash
+
+command -v sxhkd > /dev/null 2>&1 || {
+    echo >&2 "sxhkd is not installed. Aborting.";
+    exit 1;
+}
+command -v xdotool > /dev/null 2>&1 || {
+    echo >&2 "xdotool is not installed. Aborting."
+    exit 1
+}
+command -v xte > /dev/null 2>&1 || {
+    echo >&2 "xautomation is not installed. Aborting."
+    exit 1
+}
+
+xset r rate 150 50
+
+SPEED_FILE="/tmp/numpad-cursor-speed"
+echo 10 > "$SPEED_FILE"
+
+CONFIG_DIR="$HOME/.config/sxhkd"
+CONFIG_FILE="$CONFIG_DIR/sxhkdrc"
+mkdir -p "$CONFIG_DIR"
+
+cat > "$CONFIG_FILE" <<EOF
+KP_Up
+    echo "xdotool mousemove_relative -- 0 -\$(cat $SPEED_FILE)"; xdotool mousemove_relative -- 0 -\$(cat $SPEED_FILE)
+KP_Up + alt
+    echo "xdotool mousemove_relative -- 0 -3"; xdotool mousemove_relative -- 0 -3
+
+KP_Down
+    echo "xdotool mousemove_relative -- 0 \$(cat $SPEED_FILE)"; xdotool mousemove_relative -- 0 \$(cat $SPEED_FILE)
+KP_Down + alt
+    echo "xdotool mousemove_relative -- 0 3"; xdotool mousemove_relative -- 0 3
+
+KP_Left
+    echo "xdotool mousemove_relative -- -\$(cat $SPEED_FILE) 0"; xdotool mousemove_relative -- -\$(cat $SPEED_FILE) 0
+KP_Left + alt
+    echo "xdotool mousemove_relative -- -3 0"; xdotool mousemove_relative -- -3 0
+
+KP_Right
+    echo "xdotool mousemove_relative -- \$(cat $SPEED_FILE) 0"; xdotool mousemove_relative -- \$(cat $SPEED_FILE) 0
+KP_Right + alt
+    echo "xdotool mousemove_relative -- 3 0"; xdotool mousemove_relative -- 3 0
+
+KP_1
+    echo "xdotool mousemove_relative -- -\$(cat $SPEED_FILE) \$(cat $SPEED_FILE)"; xdotool mousemove_relative -- -\$(cat $SPEED_FILE) \$(cat $SPEED_FILE)
+KP_1 + alt
+    echo "xdotool mousemove_relative -- -3 3"; xdotool mousemove_relative -- -3 3
+KP_End
+    echo "xdotool mousemove_relative -- -\$(cat $SPEED_FILE) \$(cat $SPEED_FILE)"; xdotool mousemove_relative -- -\$(cat $SPEED_FILE) \$(cat $SPEED_FILE)
+KP_End + alt
+    echo "xdotool mousemove_relative -- -3 3"; xdotool mousemove_relative -- -3 3
+
+KP_3
+    echo "xdotool mousemove_relative -- \$(cat $SPEED_FILE) \$(cat $SPEED_FILE)"; xdotool mousemove_relative -- \$(cat $SPEED_FILE) \$(cat $SPEED_FILE)
+KP_3 + alt
+    echo "xdotool mousemove_relative -- 3 3"; xdotool mousemove_relative -- 3 3
+KP_Next
+    echo "xdotool mousemove_relative -- \$(cat $SPEED_FILE) \$(cat $SPEED_FILE)"; xdotool mousemove_relative -- \$(cat $SPEED_FILE) \$(cat $SPEED_FILE)
+KP_Next + alt
+    echo "xdotool mousemove_relative -- 3 3"; xdotool mousemove_relative -- 3 3
+
+KP_7
+    echo "xdotool mousemove_relative -- -\$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)"; xdotool mousemove_relative -- -\$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)
+KP_7 + alt
+    echo "xdotool mousemove_relative -- -3 -3"; xdotool mousemove_relative -- -3 -3
+KP_Home
+    echo "xdotool mousemove_relative -- -\$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)"; xdotool mousemove_relative -- -\$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)
+KP_Home + alt
+    echo "xdotool mousemove_relative -- -3 -3"; xdotool mousemove_relative -- -3 -3
+
+KP_9
+    echo "xdotool mousemove_relative -- \$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)"; xdotool mousemove_relative -- \$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)
+KP_9 + alt
+    echo "xdotool mousemove_relative -- 3 -3"; xdotool mousemove_relative -- 3 -3
+KP_Prior
+    echo "xdotool mousemove_relative -- \$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)"; xdotool mousemove_relative -- \$(cat $SPEED_FILE) -\$(cat $SPEED_FILE)
+KP_Prior + alt
+    echo "xdotool mousemove_relative -- 3 -3"; xdotool mousemove_relative -- 3 -3
+
+KP_Insert
+    echo "xte 'mouseclick 1'"; xte 'mouseclick 1'
+KP_0
+    echo "xte 'mouseclick 1'"; xte 'mouseclick 1'
+
+KP_Enter
+    echo "xte 'mouseclick 3'"; xte 'mouseclick 3'
+
+KP_5
+    echo "xte 'mouseclick 2'"; xte 'mouseclick 2'
+KP_Begin
+    echo "xte 'mouseclick 2'"; xte 'mouseclick 2'
+
+KP_Multiply
+    echo \$((\$(cat $SPEED_FILE) * 2)) > $SPEED_FILE
+KP_Divide
+    echo \$((\$(cat $SPEED_FILE) / 2 + 1)) > $SPEED_FILE
+
+KP_Add
+    echo "xte 'mouseclick 5'"; xte 'mouseclick 5'
+KP_Subtract
+    echo "xte 'mouseclick 4'"; xte 'mouseclick 4'
+KP_0
+    killall sxhkd
+KP_Delete
+    killall sxhkd
+EOF
+
+SAVED_DIR="$(pwd)/saved/"
+SAVED_FILE="$SAVED_DIR/$(date +%s).sh"
+mkdir -p "$SAVED_DIR"
+
+eval "$(xdotool getmouselocation --shell)"
+
+trap "rm $SAVED_FILE; exit 1" SIGINT
+
+sxhkd -r "$SAVED_FILE" -c "$CONFIG_FILE"
+
+sed -i -e "1i #!/bin/sh\n\nxdotool mousemove $X $Y" "$SAVED_FILE"
+
+xset r rate 500 10
