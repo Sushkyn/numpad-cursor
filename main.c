@@ -1,7 +1,6 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 #include <stdbool.h>
@@ -9,6 +8,7 @@
 #define BASE_STEP 6
 #define MAX_STEP 40
 #define INTERVAL 5000
+#define PRECISION_DIVISOR 5
 
 bool enabled = true;
 int speed = BASE_STEP;
@@ -17,10 +17,8 @@ int speed = BASE_STEP;
 
 void grab_key(Display *d, KeyCode kc) {
     unsigned int mods[] = {0, LockMask, Mod2Mask, LockMask | Mod2Mask};
-    for (int i = 0; i < 4; i++) {
-        XGrabKey(d, kc, mods[i], DefaultRootWindow(d),
-                 True, GrabModeAsync, GrabModeAsync);
-    }
+    for (int i = 0; i < 4; i++)
+        XGrabKey(d, kc, mods[i], DefaultRootWindow(d), True, GrabModeAsync, GrabModeAsync);
 }
 
 int main() {
@@ -50,11 +48,13 @@ int main() {
     KeyCode kc_speed_down = XKeysymToKeycode(d, XK_KP_Divide);
 
     KeyCode kc_toggle = XKeysymToKeycode(d, XK_KP_Enter);
-    KeyCode kc_exit   = XKeysymToKeycode(d, XK_Escape);
+
+    KeyCode kc_ctrl_l = XKeysymToKeycode(d, XK_Control_L);
+    KeyCode kc_ctrl_r = XKeysymToKeycode(d, XK_Control_R);
 
     KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,
                           kc_mid,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,
-                          kc_speed_up,kc_speed_down,kc_toggle,kc_exit};
+                          kc_speed_up,kc_speed_down,kc_toggle};
 
     for (int i=0;i<sizeof(all_keys)/sizeof(KeyCode);i++)
         grab_key(d, all_keys[i]);
@@ -68,46 +68,40 @@ int main() {
     while (1) {
         XQueryKeymap(d, keys);
 
-        if (KEYDOWN(kc_exit)) break;
+        bool precision = KEYDOWN(kc_ctrl_l) || KEYDOWN(kc_ctrl_r);
 
-        // Toggle
         static int last_toggle=0;
         int t = KEYDOWN(kc_toggle);
-        if (t && !last_toggle) {
-            enabled = !enabled;
-        }
+        if (t && !last_toggle) enabled = !enabled;
         last_toggle = t;
 
-        // Speed adjust
         static int last_su_key=0,last_sd_key=0;
         int su_key = KEYDOWN(kc_speed_up);
         int sd_key = KEYDOWN(kc_speed_down);
 
-        if (su_key && !last_su_key && speed < MAX_STEP) {
-            speed += 2;
-        }
-        if (sd_key && !last_sd_key && speed > 2) {
-            speed -= 2;
-        }
+        if (su_key && !last_su_key && speed < MAX_STEP) speed += 2;
+        if (sd_key && !last_sd_key && speed > 2) speed -= 2;
+
         last_su_key=su_key; last_sd_key=sd_key;
 
         if (!enabled) { usleep(INTERVAL); continue; }
 
+        int move_speed = precision ? speed / PRECISION_DIVISOR : speed;
+
         int dx = 0, dy = 0;
         bool moving=false;
 
-        if (KEYDOWN(kc_left))  { dx -= speed; moving=true; }
-        if (KEYDOWN(kc_right)) { dx += speed; moving=true; }
-        if (KEYDOWN(kc_up))    { dy -= speed; moving=true; }
-        if (KEYDOWN(kc_down))  { dy += speed; moving=true; }
+        if (KEYDOWN(kc_left))  { dx -= move_speed; moving=true; }
+        if (KEYDOWN(kc_right)) { dx += move_speed; moving=true; }
+        if (KEYDOWN(kc_up))    { dy -= move_speed; moving=true; }
+        if (KEYDOWN(kc_down))  { dy += move_speed; moving=true; }
 
-        if (KEYDOWN(kc_ul)) { dx -= speed; dy -= speed; moving=true; }
-        if (KEYDOWN(kc_ur)) { dx += speed; dy -= speed; moving=true; }
-        if (KEYDOWN(kc_dl)) { dx -= speed; dy += speed; moving=true; }
-        if (KEYDOWN(kc_dr)) { dx += speed; dy += speed; moving=true; }
+        if (KEYDOWN(kc_ul)) { dx -= move_speed; dy -= move_speed; moving=true; }
+        if (KEYDOWN(kc_ur)) { dx += move_speed; dy -= move_speed; moving=true; }
+        if (KEYDOWN(kc_dl)) { dx -= move_speed; dy += move_speed; moving=true; }
+        if (KEYDOWN(kc_dr)) { dx += move_speed; dy += move_speed; moving=true; }
 
-        // Fixed acceleration (no diagonal drift)
-        if (moving) {
+        if (moving && !precision) {
             accel_counter++;
             int boost = accel_counter / 15;
             if (boost > 5) boost = 5;
@@ -116,7 +110,7 @@ int main() {
             if (dx < 0) dx -= boost;
             if (dy > 0) dy += boost;
             if (dy < 0) dy -= boost;
-        } else {
+        } else if (!moving) {
             accel_counter = 0;
         }
 
@@ -127,7 +121,6 @@ int main() {
             XFlush(d);
         }
 
-        // Dragging with hold
         int lc = KEYDOWN(kc_lc);
 
         if (lc && !dragging) {
@@ -141,7 +134,6 @@ int main() {
             dragging = false;
         }
 
-        // Other clicks
         static int last_mid=0,last_rc=0,last_su=0,last_sd=0;
 
         int mid = KEYDOWN(kc_mid);
