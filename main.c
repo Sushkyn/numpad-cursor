@@ -115,8 +115,7 @@ int main() {
     KeyCode kc_shift_r = XKeysymToKeycode(d, XK_Shift_R);
     KeyCode kc_esc = XKeysymToKeycode(d, XK_Escape);
 
-    KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,
-                          kc_mid,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,
+    KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,
                           kc_speed_up,kc_speed_down,kc_toggle};
 
     for (int i=0;i<sizeof(all_keys)/sizeof(KeyCode);i++)
