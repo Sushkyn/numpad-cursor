@@ -219,7 +219,6 @@ int main() {
             record_button(btn);
             *c = 0;
 }
-
         usleep(INTERVAL);
     }
 }
