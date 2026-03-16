@@ -89,9 +89,8 @@ int main() {
     Display *d = XOpenDisplay(NULL);
     if (!d) return 1;
 
-KeyCode kc_left = XKeysymToKeycode(d, XK_KP_4), kc_right = XKeysymToKeycode(d, XK_KP_6), kc_up = XKeysymToKeycode(d, XK_KP_8), kc_down = XKeysymToKeycode(d, XK_KP_2), kc_ul = XKeysymToKeycode(d, XK_KP_7), kc_ur = XKeysymToKeycode(d, XK_KP_9), kc_dl = XKeysymToKeycode(d, XK_KP_1), kc_dr = XKeysymToKeycode(d, XK_KP_3), kc_lc = XKeysymToKeycode(d, XK_KP_0), kc_rc1 = XKeysymToKeycode(d, XK_KP_Decimal), kc_rc2 = XKeysymToKeycode(d, XK_KP_Delete), kc_su = XKeysymToKeycode(d, XK_KP_Subtract), kc_sd = XKeysymToKeycode(d, XK_KP_Add), kc_speed_up = XKeysymToKeycode(d, XK_KP_Multiply), kc_speed_down = XKeysymToKeycode(d, XK_KP_Divide), kc_toggle = XKeysymToKeycode(d, XK_KP_Enter), kc_ctrl_l = XKeysymToKeycode(d, XK_Control_L), kc_shift_l = XKeysymToKeycode(d, XK_Shift_L), kc_esc = XKeysymToKeycode(d, XK_Escape);
-    KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,
-                          kc_speed_up,kc_speed_down,kc_toggle};
+    KeyCode kc_left = XKeysymToKeycode(d, XK_KP_4), kc_right = XKeysymToKeycode(d, XK_KP_6), kc_up = XKeysymToKeycode(d, XK_KP_8), kc_down = XKeysymToKeycode(d, XK_KP_2), kc_ul = XKeysymToKeycode(d, XK_KP_7), kc_ur = XKeysymToKeycode(d, XK_KP_9), kc_dl = XKeysymToKeycode(d, XK_KP_1), kc_dr = XKeysymToKeycode(d, XK_KP_3), kc_lc = XKeysymToKeycode(d, XK_KP_0), kc_rc1 = XKeysymToKeycode(d, XK_KP_Decimal), kc_rc2 = XKeysymToKeycode(d, XK_KP_Delete), kc_su = XKeysymToKeycode(d, XK_KP_Subtract), kc_sd = XKeysymToKeycode(d, XK_KP_Add), kc_speed_up = XKeysymToKeycode(d, XK_KP_Multiply), kc_speed_down = XKeysymToKeycode(d, XK_KP_Divide), kc_toggle = XKeysymToKeycode(d, XK_KP_Enter), kc_ctrl_l = XKeysymToKeycode(d, XK_Control_L), kc_shift_l = XKeysymToKeycode(d, XK_Shift_L), kc_esc = XKeysymToKeycode(d, XK_Escape);
+    KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,kc_speed_up,kc_speed_down,kc_toggle};
 
     for (int i=0;i<sizeof(all_keys)/sizeof(KeyCode);i++)
         grab_key(d, all_keys[i]);
@@ -102,8 +101,7 @@ KeyCode kc_left = XKeysymToKeycode(d, XK_KP_4), kc_right = XKeysymToKeycode(d, X
     int accel_counter = 0;
     bool dragging = false;
     bool last_macro = false;
-    int scroll_up_counter = 0;
-    int scroll_down_counter = 0;
+    int scroll_up_counter,scroll_down_counter = 0;
 
     while (1) {
         XQueryKeymap(d, keys);
