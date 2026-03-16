@@ -13,7 +13,7 @@
 #define MAX_EVENTS 10000
 
 bool enabled = true;
-int speed = 9;
+int speed = 8;
 
 #define KEYDOWN(kc) (keys[(kc)/8] & (1 << ((kc)%8)))
 
