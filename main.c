@@ -12,7 +12,6 @@
 #define INTERVAL 5000
 #define PRECISION_DIVISOR 5
 #define MAX_EVENTS 10000
-#define SCROLL_REPEAT 2
 
 bool enabled = true;
 int speed = BASE_STEP;
@@ -207,25 +206,19 @@ int main() {
 
         last_rc=rc;
 
-        if (KEYDOWN(kc_su)) {
-            if (++scroll_up_counter >= SCROLL_REPEAT) {
-                XTestFakeButtonEvent(d, 4, True, 0);
-                XTestFakeButtonEvent(d, 4, False, 0);
-                XFlush(d);
-                record_button(4);
-                scroll_up_counter = 0;
-            }
-        } else scroll_up_counter = 0;
+        int *c = KEYDOWN(kc_su) ? &scroll_up_counter :
+          KEYDOWN(kc_sd) ? &scroll_down_counter : NULL;
 
-        if (KEYDOWN(kc_sd)) {
-            if (++scroll_down_counter >= SCROLL_REPEAT) {
-                XTestFakeButtonEvent(d, 5, True, 0);
-                XTestFakeButtonEvent(d, 5, False, 0);
-                XFlush(d);
-                record_button(5);
-                scroll_down_counter = 0;
-            }
-        } else scroll_down_counter = 0;
+        int btn = KEYDOWN(kc_su) ? 4 :
+          KEYDOWN(kc_sd) ? 5 : 0;
+
+        if (c && ++(*c) >= 3) {
+            XTestFakeButtonEvent(d, btn, True, 0);
+            XTestFakeButtonEvent(d, btn, False, 0);
+            XFlush(d);
+            record_button(btn);
+            *c = 0;
+}
 
         usleep(INTERVAL);
     }
