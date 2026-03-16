@@ -12,7 +12,7 @@
 #define INTERVAL 5000
 #define PRECISION_DIVISOR 5
 #define MAX_EVENTS 10000
-#define SCROLL_REPEAT 4
+#define SCROLL_REPEAT 2
 
 bool enabled = true;
 int speed = BASE_STEP;
@@ -137,7 +137,7 @@ int main() {
         bool shift = KEYDOWN(kc_shift_l) || KEYDOWN(kc_shift_r);
         bool esc = KEYDOWN(kc_esc);
 
-        bool macro_combo = ctrl && esc && !shift;
+        bool macro_combo = shift && esc;
 
         if (macro_combo && !last_macro) {
             if (!recording && !playing) {
