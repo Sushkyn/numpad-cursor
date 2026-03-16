@@ -62,13 +62,13 @@ void record_button(int button) {
     events[event_count++] = (Event){1, 0, 0, button, time_diff()};
 }
 
-void playback_loop(Display *d, KeyCode kc_ctrl_l, KeyCode kc_ctrl_r, KeyCode kc_shift_l, KeyCode kc_shift_r, KeyCode kc_esc) {
+void playback_loop(Display *d, KeyCode kc_ctrl_l, KeyCode kc_shift_l, KeyCode kc_esc) {
     char keys[32];
     while (playing) {
         for (int i = 0; i < event_count && playing; i++) {
             XQueryKeymap(d, keys);
-            bool ctrl = KEYDOWN(kc_ctrl_l) || KEYDOWN(kc_ctrl_r);
-            bool shift = KEYDOWN(kc_shift_l) || KEYDOWN(kc_shift_r);
+            bool ctrl = KEYDOWN(kc_ctrl_l);
+            bool shift = KEYDOWN(kc_shift_l);
             bool esc = KEYDOWN(kc_esc);
             if (ctrl && shift && esc) {
                 playing = false;
@@ -110,9 +110,7 @@ int main() {
     KeyCode kc_toggle = XKeysymToKeycode(d, XK_KP_Enter);
 
     KeyCode kc_ctrl_l = XKeysymToKeycode(d, XK_Control_L);
-    KeyCode kc_ctrl_r = XKeysymToKeycode(d, XK_Control_R);
     KeyCode kc_shift_l = XKeysymToKeycode(d, XK_Shift_L);
-    KeyCode kc_shift_r = XKeysymToKeycode(d, XK_Shift_R);
     KeyCode kc_esc = XKeysymToKeycode(d, XK_Escape);
 
     KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,
@@ -133,8 +131,8 @@ int main() {
     while (1) {
         XQueryKeymap(d, keys);
 
-        bool ctrl = KEYDOWN(kc_ctrl_l) || KEYDOWN(kc_ctrl_r);
-        bool shift = KEYDOWN(kc_shift_l) || KEYDOWN(kc_shift_r);
+        bool ctrl = KEYDOWN(kc_ctrl_l);
+        bool shift = KEYDOWN(kc_shift_l);
         bool esc = KEYDOWN(kc_esc);
 
         bool macro_combo = shift && esc;
@@ -147,7 +145,7 @@ int main() {
             } else if (recording) {
                 recording = false;
                 playing = true;
-                playback_loop(d, kc_ctrl_l, kc_ctrl_r, kc_shift_l, kc_shift_r, kc_esc);
+                playback_loop(d, kc_ctrl_l, kc_shift_l, kc_esc);
             }
         }
         last_macro = macro_combo;
