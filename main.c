@@ -7,14 +7,13 @@
 #include <stdbool.h>
 #include <sys/time.h>
 
-#define BASE_STEP 6
 #define MAX_STEP 40
 #define INTERVAL 5000
 #define PRECISION_DIVISOR 5
 #define MAX_EVENTS 10000
 
 bool enabled = true;
-int speed = BASE_STEP;
+int speed = 9;
 
 #define KEYDOWN(kc) (keys[(kc)/8] & (1 << ((kc)%8)))
 
@@ -90,27 +89,7 @@ int main() {
     Display *d = XOpenDisplay(NULL);
     if (!d) return 1;
 
-    KeyCode kc_left  = XKeysymToKeycode(d, XK_KP_4);
-    KeyCode kc_right = XKeysymToKeycode(d, XK_KP_6);
-    KeyCode kc_up    = XKeysymToKeycode(d, XK_KP_8);
-    KeyCode kc_down  = XKeysymToKeycode(d, XK_KP_2);
-    KeyCode kc_ul = XKeysymToKeycode(d, XK_KP_7);
-    KeyCode kc_ur = XKeysymToKeycode(d, XK_KP_9);
-    KeyCode kc_dl = XKeysymToKeycode(d, XK_KP_1);
-    KeyCode kc_dr = XKeysymToKeycode(d, XK_KP_3);
-    KeyCode kc_lc  = XKeysymToKeycode(d, XK_KP_0);
-    KeyCode kc_rc1 = XKeysymToKeycode(d, XK_KP_Decimal);
-    KeyCode kc_rc2 = XKeysymToKeycode(d, XK_KP_Delete);
-    KeyCode kc_su  = XKeysymToKeycode(d, XK_KP_Subtract);
-    KeyCode kc_sd  = XKeysymToKeycode(d, XK_KP_Add);
-    KeyCode kc_speed_up   = XKeysymToKeycode(d, XK_KP_Multiply);
-    KeyCode kc_speed_down = XKeysymToKeycode(d, XK_KP_Divide);
-    KeyCode kc_toggle = XKeysymToKeycode(d, XK_KP_Enter);
-
-    KeyCode kc_ctrl_l = XKeysymToKeycode(d, XK_Control_L);
-    KeyCode kc_shift_l = XKeysymToKeycode(d, XK_Shift_L);
-    KeyCode kc_esc = XKeysymToKeycode(d, XK_Escape);
-
+KeyCode kc_left = XKeysymToKeycode(d, XK_KP_4), kc_right = XKeysymToKeycode(d, XK_KP_6), kc_up = XKeysymToKeycode(d, XK_KP_8), kc_down = XKeysymToKeycode(d, XK_KP_2), kc_ul = XKeysymToKeycode(d, XK_KP_7), kc_ur = XKeysymToKeycode(d, XK_KP_9), kc_dl = XKeysymToKeycode(d, XK_KP_1), kc_dr = XKeysymToKeycode(d, XK_KP_3), kc_lc = XKeysymToKeycode(d, XK_KP_0), kc_rc1 = XKeysymToKeycode(d, XK_KP_Decimal), kc_rc2 = XKeysymToKeycode(d, XK_KP_Delete), kc_su = XKeysymToKeycode(d, XK_KP_Subtract), kc_sd = XKeysymToKeycode(d, XK_KP_Add), kc_speed_up = XKeysymToKeycode(d, XK_KP_Multiply), kc_speed_down = XKeysymToKeycode(d, XK_KP_Divide), kc_toggle = XKeysymToKeycode(d, XK_KP_Enter), kc_ctrl_l = XKeysymToKeycode(d, XK_Control_L), kc_shift_l = XKeysymToKeycode(d, XK_Shift_L), kc_esc = XKeysymToKeycode(d, XK_Escape);
     KeyCode all_keys[] = {kc_left,kc_right,kc_up,kc_down,kc_ul,kc_ur,kc_dl,kc_dr,kc_lc,kc_rc1,kc_rc2,kc_su,kc_sd,
                           kc_speed_up,kc_speed_down,kc_toggle};
 
@@ -154,8 +133,7 @@ int main() {
         last_toggle = t;
 
         static int last_su_key=0,last_sd_key=0;
-        int su_key = KEYDOWN(kc_speed_up);
-        int sd_key = KEYDOWN(kc_speed_down);
+        int su_key = KEYDOWN(kc_speed_up), sd_key = KEYDOWN(kc_speed_down);
         if (su_key && !last_su_key && speed < MAX_STEP) speed += 2;
         if (sd_key && !last_sd_key && speed > 2) speed -= 2;
         last_su_key=su_key; last_sd_key=sd_key;
@@ -198,7 +176,6 @@ int main() {
         int lc = KEYDOWN(kc_lc);
         if (lc && !dragging) { XTestFakeButtonEvent(d, 1, True, 0); XFlush(d); dragging = true; }
         if (!lc && dragging) { XTestFakeButtonEvent(d, 1, False, 0); XFlush(d); dragging = false; }
-
         static int last_mid=0,last_rc=0;
         int rc  = KEYDOWN(kc_rc1)||KEYDOWN(kc_rc2);
 
