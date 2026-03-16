@@ -145,16 +145,10 @@ KeyCode kc_left = XKeysymToKeycode(d, XK_KP_4), kc_right = XKeysymToKeycode(d, X
 
         int dx = 0, dy = 0;
         bool moving=false;
-
-        if (KEYDOWN(kc_left))  { dx -= move_speed; moving=true; }
-        if (KEYDOWN(kc_right)) { dx += move_speed; moving=true; }
-        if (KEYDOWN(kc_up))    { dy -= move_speed; moving=true; }
-        if (KEYDOWN(kc_down))  { dy += move_speed; moving=true; }
-        if (KEYDOWN(kc_ul)) { dx -= move_speed; dy -= move_speed; moving=true; }
-        if (KEYDOWN(kc_ur)) { dx += move_speed; dy -= move_speed; moving=true; }
-        if (KEYDOWN(kc_dl)) { dx -= move_speed; dy += move_speed; moving=true; }
-        if (KEYDOWN(kc_dr)) { dx += move_speed; dy += move_speed; moving=true; }
-
+        
+        (dx -= KEYDOWN(kc_left)  ? move_speed : 0, dx += KEYDOWN(kc_right) ? move_speed : 0, dy -= KEYDOWN(kc_up)    ? move_speed : 0, dy += KEYDOWN(kc_down)  ? move_speed : 0, dx -= KEYDOWN(kc_ul) ? move_speed : 0, dy -= KEYDOWN(kc_ul) ? move_speed : 0, dx += KEYDOWN(kc_ur) ? move_speed : 0, dy -= KEYDOWN(kc_ur) ? move_speed : 0, dx -= KEYDOWN(kc_dl) ? move_speed : 0, dy += KEYDOWN(kc_dl) ? move_speed : 0, dx += KEYDOWN(kc_dr) ? move_speed : 0, dy += KEYDOWN(kc_dr) ? move_speed : 0,
+        moving = (KEYDOWN(kc_left) || KEYDOWN(kc_right) || KEYDOWN(kc_up) || KEYDOWN(kc_down) || KEYDOWN(kc_ul) || KEYDOWN(kc_ur) || KEYDOWN(kc_dl) || KEYDOWN(kc_dr)) ? true : moving);
+        
         if (moving && !precision) {
             accel_counter++;
             int boost = accel_counter / 15;
