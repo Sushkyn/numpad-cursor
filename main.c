@@ -99,7 +99,6 @@ int main() {
     KeyCode kc_ur = XKeysymToKeycode(d, XK_KP_9);
     KeyCode kc_dl = XKeysymToKeycode(d, XK_KP_1);
     KeyCode kc_dr = XKeysymToKeycode(d, XK_KP_3);
-    KeyCode kc_mid = XKeysymToKeycode(d, XK_KP_5);
     KeyCode kc_lc  = XKeysymToKeycode(d, XK_KP_0);
     KeyCode kc_rc1 = XKeysymToKeycode(d, XK_KP_Decimal);
     KeyCode kc_rc2 = XKeysymToKeycode(d, XK_KP_Delete);
@@ -202,13 +201,11 @@ int main() {
         if (!lc && dragging) { XTestFakeButtonEvent(d, 1, False, 0); XFlush(d); dragging = false; }
 
         static int last_mid=0,last_rc=0;
-        int mid = KEYDOWN(kc_mid);
         int rc  = KEYDOWN(kc_rc1)||KEYDOWN(kc_rc2);
 
-        if (mid && !last_mid) { XTestFakeButtonEvent(d, 2, True, 0); XTestFakeButtonEvent(d, 2, False, 0); XFlush(d); record_button(2); }
         if (rc  && !last_rc)  { XTestFakeButtonEvent(d, 3, True, 0); XTestFakeButtonEvent(d, 3, False, 0); XFlush(d); record_button(3); }
 
-        last_mid=mid; last_rc=rc;
+        last_rc=rc;
 
         if (KEYDOWN(kc_su)) {
             if (++scroll_up_counter >= SCROLL_REPEAT) {
