@@ -7,14 +7,8 @@
 #include <stdbool.h>
 #include <sys/time.h>
 
-#define MAX_STEP 40
-#define INTERVAL 5000
-#define PRECISION_DIVISOR 5
-#define MAX_EVENTS 10000
-
 bool enabled = true;
 int speed = 7;
-
 #define KEYDOWN(kc) (keys[(kc)/8] & (1 << ((kc)%8)))
 
 typedef struct {
@@ -24,11 +18,9 @@ typedef struct {
     useconds_t delay;
 } Event;
 
-Event events[MAX_EVENTS];
+Event events[10000];
 int event_count = 0;
-bool recording = false;
-bool playing = false;
-
+bool recording,playing = false;
 struct timeval last_time;
 
 void grab_key(Display *d, KeyCode kc) {
@@ -51,12 +43,12 @@ useconds_t time_diff() {
 }
 
 void record_motion(int dx, int dy) {
-    if (!recording || event_count >= MAX_EVENTS) return;
+    if (!recording || event_count >= 10000) return;
     events[event_count++] = (Event){0, dx, dy, 0, time_diff()};
 }
 
 void record_button(int button) {
-    if (!recording || event_count >= MAX_EVENTS) return;
+    if (!recording || event_count >= 10000) return;
     events[event_count++] = (Event){1, 0, 0, button, time_diff()};
 }
 
@@ -132,14 +124,14 @@ int main() {
 
         static int last_su_key=0,last_sd_key=0;
         int su_key = KEYDOWN(kc_speed_up), sd_key = KEYDOWN(kc_speed_down);
-        if (su_key && !last_su_key && speed < MAX_STEP) speed += 2;
+        if (su_key && !last_su_key && speed < 40) speed += 2;
         if (sd_key && !last_sd_key && speed > 2) speed -= 2;
         last_su_key=su_key; last_sd_key=sd_key;
 
-        if (!enabled || playing) { usleep(INTERVAL); continue; }
+        if (!enabled || playing) { usleep(5500); continue; }
 
         bool precision = ctrl;
-        int move_speed = precision ? speed / PRECISION_DIVISOR : speed;
+        int move_speed = precision ? speed / 5 : speed;
 
         int dx = 0, dy = 0;
         bool moving=false;
@@ -188,6 +180,6 @@ int main() {
             record_button(btn);
             *c = 0;
 }
-        usleep(INTERVAL);
+        usleep(5500);
     }
 }
